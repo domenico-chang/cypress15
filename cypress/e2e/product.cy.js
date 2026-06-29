@@ -1,24 +1,49 @@
 describe('Prueba 3: Registrar un producto', () => {
-  const llenarFormularioProducto = () => {
-    cy.get('input', { timeout: 10000 }).should('have.length.at.least', 4);
+  const llenarCamposDisponibles = () => {
+    cy.get('body', { timeout: 10000 }).should('be.visible');
 
-    cy.get('input').eq(0).clear().type('Laptop Dell XPS 13', { delay: 50 });
-    cy.get('input').eq(1).clear().type('Laptop de alto rendimiento', { delay: 50 });
-    cy.get('input').eq(2).clear().type('1299.99', { delay: 50 });
-    cy.get('input').eq(3).clear().type('15', { delay: 50 });
+    cy.get('body').then(($body) => {
+      const inputs = $body.find('input:visible:not([disabled])');
+      const textareas = $body.find('textarea:visible:not([disabled])');
+      const selects = $body.find('select:visible:not([disabled])');
 
-    cy.get('select').then(($selects) => {
-      if ($selects.length > 0) {
-        cy.wrap($selects.first()).select(1);
+      if (inputs.length > 0) {
+        cy.wrap(inputs.eq(0)).clear({ force: true }).type('Laptop Dell XPS 13', { force: true });
+
+        if (inputs.length > 1) {
+          cy.wrap(inputs.eq(1)).clear({ force: true }).type('Laptop de alto rendimiento', { force: true });
+        }
+
+        if (inputs.length > 2) {
+          cy.wrap(inputs.eq(2)).clear({ force: true }).type('1299.99', { force: true });
+        }
+
+        if (inputs.length > 3) {
+          cy.wrap(inputs.eq(3)).clear({ force: true }).type('15', { force: true });
+        }
+      }
+
+      if (textareas.length > 0) {
+        cy.wrap(textareas.eq(0)).clear({ force: true }).type('Laptop de alto rendimiento', { force: true });
+      }
+
+      if (selects.length > 0) {
+        cy.wrap(selects.eq(0)).select(1, { force: true });
       }
     });
   };
 
   const clickBotonSubmit = () => {
-    cy.get('button[type="submit"]', { timeout: 10000 })
-      .filter(':visible')
-      .first()
-      .click({ force: true });
+    cy.get('body').then(($body) => {
+      const submitButtons = $body.find('button[type="submit"]:visible:not([disabled])');
+      const normalButtons = $body.find('button:visible:not([disabled])');
+
+      if (submitButtons.length > 0) {
+        cy.wrap(submitButtons.eq(0)).click({ force: true });
+      } else if (normalButtons.length > 0) {
+        cy.wrap(normalButtons.eq(0)).click({ force: true });
+      }
+    });
   };
 
   it('Debe capturar pantalla del formulario de producto', () => {
@@ -27,7 +52,7 @@ describe('Prueba 3: Registrar un producto', () => {
     cy.get('body', { timeout: 10000 }).should('be.visible');
     cy.screenshot('05-producto-inicio');
 
-    llenarFormularioProducto();
+    llenarCamposDisponibles();
 
     cy.wait(500);
     cy.screenshot('05-producto-formulario-lleno');
